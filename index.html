@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учёт АРВТ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .panel {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            width: 320px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .drug-control {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .drug-count {
+            margin: 0 15px;
+            font-weight: bold;
+            width: 24px;
+            text-align: center;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .stats-item {
+            margin: 12px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .stats-item .packs-info {
+            display: block;
+            margin-left: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        #patient-check {
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            max-width: 800px;
+        }
+        .patient-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .therapy-info {
+            margin-top: 15px;
+        }
+        .therapy-info p {
+            margin: 8px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+        .total-patients {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        #print-recipe {
+            background-color: #f39c12;
+        }
+        #print-recipe:hover {
+            background-color: #e67e22;
+        }
+        #recipe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #recipe-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 85%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #recipe-text {
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        #copy-recipe {
+            background-color: #2ecc71;
+        }
+        #copy-recipe:hover {
+            background-color: #27ae60;
+        }
+        #close-recipe {
+            background-color: #e74c3c;
+        }
+        #close-recipe:hover {
+            background-color: #c0392b;
+        }
+        .dropout-stats {
+            margin-top: 15px;
+        }
+        .dropout-item {
+            margin: 10px 0;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .dropout-total {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #eee;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        #clear-data {
+            background-color: #e74c3c;
+        }
+        #clear-data:hover {
+            background-color: #c0392b;
+        }
+        .status-active {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-expired {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+            font-size: 20px;
+        }
+        .drug-history {
+            margin: 12px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .drug-dates {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        #generated-code {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e8f4fc;
+            border-radius: 6px;
+            font-size: 18px;
+            text-align: center;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        #current-patient {
+            padding: 10px;
+            background-color: #e8f4fc;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        #check-result {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        #reset-drugs {
+            background-color: #e67e22;
+            margin-top: 10px;
+        }
+        #reset-drugs:hover {
+            background-color: #d35400;
+        }
+        #refresh-data {
+            background-color: #9b59b6;
+        }
+        #refresh-data:hover {
+            background-color: #8e44ad;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Система учета АРВТ</h1>
+    
+    <div class="container">
+        <!-- Первая колонка - Генерация кода и препараты -->
+        <div class="panel">
+            <h2>Новый пациент</h2>
+            <button id="generate-code">Сгенерировать код</button>
+            <div id="generated-code"></div>
+            <button id="use-code">Использовать код</button>
+            
+            <h2 style="margin-top: 25px;">Препараты</h2>
+            <div class="drug-control">
+                <button class="drug-btn" data-drug="Делстриго">Делстриго</button>
+                <span class="drug-count" id="Делстриго-count">0</span>
+            </div>
+            <div class="drug-control">
+                <button class="drug-btn" data-drug="Биктарви">Биктарви</button>
+                <span class="drug-count" id="Биктарви-count">0</span>
+            </div>
+            <div class="drug-control">
+                <button class="drug-btn" data-drug="Тивикай">Тивикай</button>
+                <span class="drug-count" id="Тивикай-count">0</span>
+            </div>
+            
+            <button id="add-therapy">Выдать терапию</button>
+            <button id="reset-drugs">Сбросить выбор</button>
+        </div>
+
+        <!-- Вторая колонка (текущий пациент) -->
+        <div class="panel">
+            <h2>Текущий пациент</h2>
+            <div id="current-patient">Не выбран</div>
+            <div id="patient-therapy" class="therapy-info"></div>
+        </div>
+
+        <!-- Третья колонка (статистика) -->
+        <div class="panel">
+            <h2>Общая статистика</h2>
+            <div id="stats-delstrigo" class="stats-item"></div>
+            <div id="stats-biktarvy" class="stats-item"></div>
+            <div id="stats-tivicay" class="stats-item"></div>
+            <div id="total-patients-count" class="total-patients">
+                <span>Всего пациентов на терапии:</span> <span id="total-patients">0</span>
+            </div>
+        </div>
+        
+        <!-- Четвертая колонка (сошедшие с терапии) -->
+        <div class="panel">
+            <h2>Пациенты, сошедшие с терапии</h2>
+            <div class="dropout-stats">
+                <div class="dropout-item">
+                    <span>1 месяц назад:</span> <span id="dropout-month1">0</span>
+                </div>
+                <div class="dropout-item">
+                    <span>2 месяца назад:</span> <span id="dropout-month2">0</span>
+                </div>
+                <div class="dropout-item">
+                    <span>3 месяца назад:</span> <span id="dropout-month3">0</span>
+                </div>
+                <div class="dropout-item">
+                    <span>4 месяца назад:</span> <span id="dropout-month4">0</span>
+                </div>
+                <div class="dropout-item">
+                    <span>5 месяцев назад:</span> <span id="dropout-month5">0</span>
+                </div>
+                <div class="dropout-item">
+                    <span>6 месяцев назад:</span> <span id="dropout-month6">0</span>
+                </div>
+                <div class="dropout-total">
+                    <span>Всего сошедших:</span> <span id="dropout-total">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Панель управления -->
+        <div class="panel" style="width: 100%; max-width: 980px;">
+            <h2>Управление системой</h2>
+            <button id="print-recipe">Показать рецепт</button>
+            <button id="refresh-data">Обновить данные</button>
+            <button id="clear-data">Очистить базу данных</button>
+        </div>
+    </div>
+
+    <div id="patient-check">
+        <h2>Проверка пациента</h2>
+        <input type="text" id="check-id" placeholder="Введите ID пациента">
+        <div class="patient-actions">
+            <button id="check-patient">Проверить</button>
+            <button id="use-existing-code">Использовать номер</button>
+        </div>
+        <div id="check-result"></div>
+    </div>
+
+    <div id="recipe-modal">
+        <div id="recipe-content">
+            <h2 style="margin-top: 0;">Рецепт пациента</h2>
+            <div id="recipe-text"></div>
+            <div class="modal-buttons">
+                <button id="copy-recipe">Копировать рецепт</button>
+                <button id="close-recipe">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Хранение данных
+    let patients = {};
+    let currentPatientId = null;
+    let drugCounts = {
+        'Делстриго': 0,
+        'Биктарви': 0,
+        'Тивикай': 0
+    };
+
+    // Функция для правильного склонения слов
+    function pluralize(number, one, few, many) {
+        number = Math.abs(number);
+        number %= 100;
+        if (number >= 5 && number <= 20) {
+            return many;
+        }
+        number %= 10;
+        if (number === 1) {
+            return one;
+        }
+        if (number >= 2 && number <= 4) {
+            return few;
+        }
+        return many;
+    }
+
+    // Загрузка данных из localStorage
+    function loadData() {
+        const savedData = localStorage.getItem('artTherapyData');
+        if (savedData) {
+            patients = JSON.parse(savedData);
+            updateStats();
+        }
+    }
+
+    // Сохранение терапии
+    async function saveTherapy(patientId, drugs) {
+    try {
+        // Получаем текущие препараты пациента (если есть)
+        const currentDrugs = patients[patientId] ? patients[patientId].drugs : {};
+        
+        // Создаем новый объект для препаратов пациента
+        const newDrugs = {};
+        
+        // Добавляем новые препараты
+        for (const drug of drugs) {
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setDate(today.getDate() + drug.packs * 30);
+            
+            newDrugs[drug.name] = {
+                packs: drug.packs,
+                issued: today.toISOString().split('T')[0],
+                until: endDate.toISOString().split('T')[0]
+            };
+        }
+        
+        // Сохраняем новые данные
+        patients[patientId] = { drugs: newDrugs };
+        
+        localStorage.setItem('artTherapyData', JSON.stringify(patients));
+        updateStats();
+        return true;
+        
+    } catch (error) {
+        console.error('Ошибка сохранения терапии:', error);
+        alert('Не удалось сохранить данные');
+        return false;
+    }
+}
+
+    // Генерация уникального 6-значного кода
+    function generateUniqueCode() {
+        let code;
+        do {
+            code = Math.floor(100000 + Math.random() * 900000).toString();
+        } while (patients[code]);
+        return code;
+    }
+
+    // Очистка всех данных с подтверждением
+    function clearData() {
+        if (!confirm('Вы уверены, что хотите полностью очистить базу данных?\n\nЭто действие нельзя отменить!')) {
+            return;
+        }
+        
+        const password = prompt('Для подтверждения введите пароль для удаления данных:');
+        if (password !== 'delALL') {
+            alert('Неверный пароль! Удаление отменено.');
+            return;
+        }
+
+        patients = {};
+        currentPatientId = null;
+        drugCounts = { 'Делстриго': 0, 'Биктарви': 0, 'Тивикай': 0 };
+        
+        document.getElementById('generated-code').textContent = '';
+        document.getElementById('current-patient').textContent = 'Не выбран';
+        document.getElementById('patient-therapy').innerHTML = '';
+        document.getElementById('check-result').textContent = '';
+        
+        document.querySelectorAll('.drug-count').forEach(el => el.textContent = '0');
+        
+        localStorage.removeItem('artTherapyData');
+        updateStats();
+        
+        alert('Все данные успешно удалены!');
+    }
+
+    // Выбор пациента
+    function selectPatient(patientId) {
+        currentPatientId = patientId;
+        document.getElementById('current-patient').textContent = `Пациент: ${patientId}`;
+        document.getElementById('check-id').value = patientId;
+        
+        if (!patients[patientId]) {
+            patients[patientId] = { drugs: {} };
+            localStorage.setItem('artTherapyData', JSON.stringify(patients));
+        }
+        
+        updatePatientInfo();
+    }
+
+    // Обновление информации о пациенте
+    function updatePatientInfo() {
+        const therapyContainer = document.getElementById('patient-therapy');
+        if (currentPatientId && patients[currentPatientId]) {
+            let info = '<h3>Текущая терапия</h3>';
+            
+            for (const [drug, data] of Object.entries(patients[currentPatientId].drugs)) {
+                const issuedDate = new Date(data.issued);
+                const untilDate = new Date(data.until);
+                const daysLeft = Math.floor((untilDate - new Date()) / (1000 * 60 * 60 * 24));
+                
+                info += `
+                    <div class="drug-history">
+                        <strong>${drug}:</strong> ${data.packs} ${pluralize(data.packs, 'упаковка', 'упаковки', 'упаковок')}
+                        <div class="drug-dates">
+                            <div>Назначено: ${issuedDate.toLocaleDateString('ru-RU')}</div>
+                            <div>Окончание: ${untilDate.toLocaleDateString('ru-RU')}</div>
+                            <div class="${daysLeft > 0 ? 'status-active' : 'status-expired'}">
+                                ${daysLeft > 0 ? 
+                                    `Осталось ${daysLeft} ${pluralize(daysLeft, 'день', 'дня', 'дней')}` : 
+                                    `Просрочено ${Math.abs(daysLeft)} ${pluralize(Math.abs(daysLeft), 'день', 'дня', 'дней')} назад`}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            therapyContainer.innerHTML = info || '<p>Нет данных о терапии</p>';
+        } else {
+            therapyContainer.innerHTML = '<p>Пациент не выбран</p>';
+        }
+    }
+
+    // Обновление статистики
+    function updateStats() {
+    const stats = {
+        'Делстриго': { patients: new Set(), packs: 0 },
+        'Биктарви': { patients: new Set(), packs: 0 },
+        'Тивикай': { patients: new Set(), packs: 0 }
+    };
+
+    const dropoutStats = {
+        month1: 0,
+        month2: 0,
+        month3: 0,
+        month4: 0,
+        month5: 0,
+        month6: 0,
+        total: 0
+    };
+
+    // Собираем статистику по препаратам и сошедшим пациентам
+    for (const [patientId, patientData] of Object.entries(patients)) {
+        let patientHasTherapy = false;
+        let maxDaysExpired = 0;
+        
+        // Учитываем только текущие препараты пациента
+        for (const [drug, data] of Object.entries(patientData.drugs)) {
+            patientHasTherapy = true;
+            if (stats[drug]) {
+                stats[drug].patients.add(patientId);
+                stats[drug].packs += data.packs;
+            }
+            
+            // Рассчитываем, сколько дней прошло с окончания терапии
+            const daysExpired = Math.floor((new Date() - new Date(data.until)) / (1000 * 60 * 60 * 24));
+            if (daysExpired > maxDaysExpired) {
+                maxDaysExpired = daysExpired;
+            }
+        }
+        
+        // Учитываем пациентов, сошедших с терапии
+        if (patientHasTherapy && maxDaysExpired > 30) {
+            dropoutStats.total++;
+            
+            if (maxDaysExpired >= 180) {
+                dropoutStats.month6++;
+            } else if (maxDaysExpired >= 150) {
+                dropoutStats.month5++;
+            } else if (maxDaysExpired >= 120) {
+                dropoutStats.month4++;
+            } else if (maxDaysExpired >= 90) {
+                dropoutStats.month3++;
+            } else if (maxDaysExpired >= 60) {
+                dropoutStats.month2++;
+            } else if (maxDaysExpired >= 30) {
+                dropoutStats.month1++;
+            }
+        }
+    }
+
+        // Обновление отображения статистики по препаратам
+    document.getElementById('stats-delstrigo').innerHTML = `
+        <strong>Делстриго:</strong> ${stats['Делстриго'].patients.size} ${pluralize(stats['Делстриго'].patients.size, 'пациент', 'пациента', 'пациентов')}
+        <span class="packs-info">${stats['Делстриго'].packs} ${pluralize(stats['Делстриго'].packs, 'упаковка', 'упаковки', 'упаковок')}</span>
+    `;
+    
+    document.getElementById('stats-biktarvy').innerHTML = `
+        <strong>Биктарви:</strong> ${stats['Биктарви'].patients.size} ${pluralize(stats['Биктарви'].patients.size, 'пациент', 'пациента', 'пациентов')}
+        <span class="packs-info">${stats['Биктарви'].packs} ${pluralize(stats['Биктарви'].packs, 'упаковка', 'упаковки', 'упаковок')}</span>
+    `;
+    
+    document.getElementById('stats-tivicay').innerHTML = `
+        <strong>Тивикай:</strong> ${stats['Тивикай'].patients.size} ${pluralize(stats['Тивикай'].patients.size, 'пациент', 'пациента', 'пациентов')}
+        <span class="packs-info">${stats['Тивикай'].packs} ${pluralize(stats['Тивикай'].packs, 'упаковка', 'упаковки', 'упаковок')}</span>
+    `;
+    
+    // Обновление статистики по сошедшим
+    document.getElementById('dropout-month1').textContent = dropoutStats.month1;
+    document.getElementById('dropout-month2').textContent = dropoutStats.month2;
+    document.getElementById('dropout-month3').textContent = dropoutStats.month3;
+    document.getElementById('dropout-month4').textContent = dropoutStats.month4;
+    document.getElementById('dropout-month5').textContent = dropoutStats.month5;
+    document.getElementById('dropout-month6').textContent = dropoutStats.month6;
+    document.getElementById('dropout-total').textContent = dropoutStats.total;
+    
+    // Общее количество пациентов
+    const uniquePatients = new Set();
+    for (const drugStats of Object.values(stats)) {
+        for (const patientId of drugStats.patients) {
+            uniquePatients.add(patientId);
+        }
+    }
+    document.getElementById('total-patients').textContent = uniquePatients.size;
+}
+
+    // Функция для вывода рецепта
+    function printRecipe() {
+        if (!currentPatientId || !patients[currentPatientId]) {
+            alert('Сначала выберите пациента!');
+            return;
+        }
+
+        let recipeText = `Рецепт на АРВТ\n\n`;
+        recipeText += `Номер пациента: ${currentPatientId}\n`;
+        recipeText += `Дата выдачи: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
+        recipeText += `Назначенные препараты:\n\n`;
+
+        let hasDrugs = false;
+
+        for (const [drug, data] of Object.entries(patients[currentPatientId].drugs)) {
+            hasDrugs = true;
+            const untilDate = new Date(data.until);
+            recipeText += `${drug}: ${data.packs} ${pluralize(data.packs, 'упаковка', 'упаковки', 'упаковок')}\n`;
+            recipeText += `Срок действия до: ${untilDate.toLocaleDateString('ru-RU')}\n\n`;
+        }
+
+        if (!hasDrugs) {
+            recipeText += 'Нет назначенных препаратов';
+        }
+
+        // Показываем модальное окно с рецептом
+        const modal = document.getElementById('recipe-modal');
+        const recipeTextElement = document.getElementById('recipe-text');
+        recipeTextElement.textContent = recipeText;
+        modal.style.display = 'flex';
+
+        // Обработчик кнопки копирования
+        document.getElementById('copy-recipe').onclick = function() {
+            navigator.clipboard.writeText(recipeText)
+                .then(() => alert('Рецепт скопирован в буфер обмена!'))
+                .catch(err => {
+                    console.error('Ошибка копирования: ', err);
+                    alert('Не удалось скопировать рецепт. Попробуйте выделить текст вручную.');
+                });
+        };
+
+        // Обработчик кнопки закрытия
+        document.getElementById('close-recipe').onclick = function() {
+            modal.style.display = 'none';
+        };
+    }
+
+    // Закрытие модального окна при клике вне его
+    document.getElementById('recipe-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+
+    // Инициализация обработчиков событий
+    function initEventListeners() {
+        // Генерация нового кода пациента
+        document.getElementById('generate-code').addEventListener('click', function() {
+            const code = generateUniqueCode();
+            document.getElementById('generated-code').textContent = `Сгенерирован код: ${code}`;
+            currentPatientId = code;
+        });
+
+        // Использование сгенерированного кода
+        document.getElementById('use-code').addEventListener('click', function() {
+            if (currentPatientId) {
+                selectPatient(currentPatientId);
+                alert(`Пациент ${currentPatientId} выбран`);
+            } else {
+                alert('Сначала сгенерируйте код пациента!');
+            }
+        });
+
+        // Использование существующего кода
+        document.getElementById('use-existing-code').addEventListener('click', function() {
+            const patientId = document.getElementById('check-id').value.trim();
+            if (patientId) {
+                if (patients[patientId]) {
+                    selectPatient(patientId);
+                } else {
+                    alert('Пациент с таким ID не найден!');
+                }
+            } else {
+                alert('Введите ID пациента');
+            }
+        });
+
+        // Кнопки выбора препаратов
+        document.querySelectorAll('.drug-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const drug = this.getAttribute('data-drug');
+                if (drugCounts[drug] < 6) {
+                    drugCounts[drug]++;
+                    document.getElementById(`${drug}-count`).textContent = drugCounts[drug];
+                } else {
+                    alert(`Максимальное количество упаковок (6) для ${drug} уже выбрано!`);
+                }
+            });
+        });
+
+        // Сброс выбранных препаратов
+        document.getElementById('reset-drugs').addEventListener('click', function() {
+            for (const drug of Object.keys(drugCounts)) {
+                drugCounts[drug] = 0;
+                document.getElementById(`${drug}-count`).textContent = '0';
+            }
+            alert('Выбор препаратов сброшен');
+        });
+
+        // Выдача терапии
+        document.getElementById('add-therapy').addEventListener('click', async function() {
+            if (!currentPatientId) {
+                alert('Сначала выберите пациента!');
+                return;
+            }
+
+            const drugsToSave = [];
+            let hasDrugsToAdd = false;
+            
+            for (const [drug, count] of Object.entries(drugCounts)) {
+                if (count > 0) {
+                    drugsToSave.push({
+                        name: drug,
+                        packs: count
+                    });
+                    hasDrugsToAdd = true;
+                }
+            }
+            
+            if (hasDrugsToAdd) {
+                const success = await saveTherapy(currentPatientId, drugsToSave);
+                if (success) {
+                    // Сбрасываем счетчики только после успешного сохранения
+                    for (const drug of Object.keys(drugCounts)) {
+                        drugCounts[drug] = 0;
+                        document.getElementById(`${drug}-count`).textContent = '0';
+                    }
+                    updatePatientInfo();
+                    alert('Терапия успешно назначена!');
+                }
+            } else {
+                alert('Не выбрано ни одного препарата для выдачи!');
+            }
+        });
+
+        // Проверка пациента
+        document.getElementById('check-patient').addEventListener('click', function() {
+            const patientId = document.getElementById('check-id').value.trim();
+            const resultContainer = document.getElementById('check-result');
+            
+            if (patientId) {
+                if (patients[patientId]) {
+                    let result = `<h3>Информация о пациенте ${patientId}</h3>`;
+                    
+                    for (const [drug, data] of Object.entries(patients[patientId].drugs)) {
+                        const issuedDate = new Date(data.issued);
+                        const untilDate = new Date(data.until);
+                        const daysLeft = Math.floor((untilDate - new Date()) / (1000 * 60 * 60 * 24));
+                        
+                        result += `
+                            <div class="drug-history">
+                                <strong>${drug}:</strong> ${data.packs} ${pluralize(data.packs, 'упаковка', 'упаковки', 'упаковок')}
+                                <div class="drug-dates">
+                                    <div>Назначено: ${issuedDate.toLocaleDateString('ru-RU')}</div>
+                                    <div>Окончание: ${untilDate.toLocaleDateString('ru-RU')}</div>
+                                    <div class="${daysLeft > 0 ? 'status-active' : 'status-expired'}">
+                                        ${daysLeft > 0 ? 
+                                            `Осталось ${daysLeft} ${pluralize(daysLeft, 'день', 'дня', 'дней')}` : 
+                                            `Просрочено ${Math.abs(daysLeft)} ${pluralize(Math.abs(daysLeft), 'день', 'дня', 'дней')} назад`}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    resultContainer.innerHTML = result || '<p>Нет данных о терапии</p>';
+                } else {
+                    resultContainer.innerHTML = '<p>Пациент с таким ID не найден</p>';
+                }
+            } else {
+                resultContainer.innerHTML = '<p>Введите ID пациента</p>';
+            }
+        });
+
+        // Очистка базы данных
+        document.getElementById('clear-data').addEventListener('click', clearData);
+        
+        // Показать рецепт
+        document.getElementById('print-recipe').addEventListener('click', printRecipe);
+        
+        // Обновить данные
+        document.getElementById('refresh-data').addEventListener('click', function() {
+            loadData();
+            alert('Данные обновлены');
+        });
+    }
+
+    // Инициализация приложения
+    function initApp() {
+        loadData();
+        initEventListeners();
+    }
+
+    // Запуск приложения после загрузки DOM
+    document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
