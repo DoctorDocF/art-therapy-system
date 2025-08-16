@@ -1,0 +1,21 @@
+CREATE DATABASE IF NOT EXISTS art_therapy;
+
+USE art_therapy;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE patients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id VARCHAR(20) NOT NULL UNIQUE,
+    therapy_history JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (login, password_hash) 
+VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MrYV7ZIKLb7QyC0GHjApGY6AGy2QhDi'); -- Пароль: admin123
