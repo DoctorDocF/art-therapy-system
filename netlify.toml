@@ -1,7 +1,7 @@
 [build]
-  command = "cd client && npm install && npm run build"
-  publish = "client/build"
-  functions = "server/functions"  # если будете использовать Netlify Functions
+  base = "client"  # Указываем базовую директорию
+  command = "npm install && npm run build"
+  publish = "build"  # Путь относительно базовой директории
 
 [[redirects]]
   from = "/*"
