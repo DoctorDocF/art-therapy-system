@@ -1,7 +1,7 @@
 [build]
-  base = "client"  # Указываем базовую директорию
-  command = "npm install && npm run build"
-  publish = "build"  # Путь относительно базовой директории
+  base = "."  # Корень репозитория
+  command = "cd client && npm install && npm run build"
+  publish = "client/build"  # Путь к собранному React-приложению
 
 [[redirects]]
   from = "/*"
