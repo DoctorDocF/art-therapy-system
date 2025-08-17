@@ -38,6 +38,18 @@ app.use((req, res, next) => {
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
+// После подключения роутов, но до app.listen()
+app.get('/', (req, res) => {
+  res.json({
+    status: 'API is working',
+    message: 'Welcome to ARVT Therapy System',
+    endpoints: {
+      auth: '/auth',
+      api: '/api'
+    }
+  });
+});
+
 // Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
