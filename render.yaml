@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: art-therapy-system
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js

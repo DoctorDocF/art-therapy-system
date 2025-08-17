@@ -1,0 +1,9 @@
+[build]
+  command = "cd client && npm install && npm run build"
+  publish = "client/build"
+  functions = "server/functions"  # если будете использовать Netlify Functions
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
