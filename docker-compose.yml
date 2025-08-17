@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: art_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root_password'
+      MYSQL_DATABASE: 'art_therapy'
+      MYSQL_USER: 'art_user'
+      MYSQL_PASSWORD: 'user_password'
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - art_network
+
+  backend:
+    build: ./server
+    container_name: art_backend
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: art_user
+      DB_PASSWORD: user_password
+      DB_NAME: art_therapy
+      JWT_SECRET: 'your_jwt_secret'
+    ports:
+      - "3000:3000"
+    networks:
+      - art_network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  art_network:
